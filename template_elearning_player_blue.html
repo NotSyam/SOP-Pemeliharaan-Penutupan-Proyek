@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>{{COURSE_TITLE}} - {{COURSE_CODE}}</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti for Celebration Effects -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Google Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <!-- Tailwind Theme Configuration: Corporate Blue & Pure White (Zero Brown/Beige) -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            brand: {
+              primary: '#2B73BD',       // Primary Corporate Blue
+              primaryHover: '#205c99',
+              secondary: '#5A89B8',     // Steel Blue
+              secondaryLight: '#7eabd9',
+              lightBlue: '#38BDF8',      // Sky Blue Accent
+              iceBg: '#F0F4F7',          // Ice Canvas White
+              surfaceLight: '#FFFFFF',
+              borderLight: '#D9E3EA',
+              darkBg: '#09111E',        // Deep Slate Dark
+              darkSurface: '#111C2E',   // Dark Surface
+              darkBorder: '#1F2F4A',
+              darkSubtle: '#16233B'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    }
+
+    /* Seekbar Styling */
+    #seekBar {
+      --progress: 0%;
+      background: linear-gradient(to right, #2B73BD 0%, #2B73BD var(--progress), #cbd5e1 var(--progress), #e2e8f0 100%);
+    }
+    .dark #seekBar {
+      background: linear-gradient(to right, #38BDF8 0%, #38BDF8 var(--progress), #1F2F4A var(--progress), #111C2E 100%) !important;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 14px;
+      width: 14px;
+      border-radius: 50%;
+      background: #2B73BD;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(43, 115, 189, 0.6);
+      border: 2px solid #ffffff;
+      transition: transform 0.12s ease;
+    }
+    .dark input[type=range]::-webkit-slider-thumb {
+      background: #38BDF8;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.8);
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.3);
+    }
+
+    /* Clean Scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(90, 137, 184, 0.35); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(43, 115, 189, 0.65); }
+
+    /* Tactile button bounce */
+    .btn-tactile {
+      transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease;
+    }
+    .btn-tactile:active {
+      transform: scale(0.97);
+    }
+
+    /* Print certificate styles */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #certificatePrintArea, #certificatePrintArea * {
+        visibility: visible;
+      }
+      #certificatePrintArea {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: white !important;
+        padding: 0;
+        margin: 0;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+      }
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+    }
+  </style>
+</head>
+
+<body class="h-full bg-brand-iceBg dark:bg-brand-darkBg text-slate-800 dark:text-slate-100 font-sans select-none overflow-hidden flex flex-col transition-colors duration-200">
+
+  <!-- ========================================================================
+       TOPBAR NAVIGATION
+       ======================================================================== -->
+  <header class="h-14 bg-white dark:bg-brand-darkSurface border-b border-brand-borderLight dark:border-brand-darkBorder px-4 flex items-center justify-between shrink-0 shadow-sm z-30">
+    <div class="flex items-center gap-3">
+      <!-- Sidebar Drawer Toggle (Mobile & Desktop) -->
+      <button id="btnToggleSidebar" onclick="toggleSidebar()" class="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-brand-darkSubtle btn-tactile focus:outline-none" aria-label="Toggle Outline Menu">
+        <span class="material-symbols-outlined text-xl">menu</span>
+      </button>
+
+      <!-- Logo & Organization Badge -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-brand-primary flex items-center justify-center text-white font-bold text-xs shadow-sm">
+          HCM
+        </div>
+        <div>
+          <div class="text-xs md:text-sm font-bold text-slate-900 dark:text-white leading-tight flex items-center gap-2">
+            <span>{{ORGANIZATION_NAME}}</span>
+            <span class="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono bg-blue-100 dark:bg-blue-900/40 text-brand-primary dark:text-brand-lightBlue font-semibold border border-blue-200 dark:border-blue-800">
+              {{COURSE_CODE}}
+            </span>
+          </div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-[200px] sm:max-w-md">
+            {{COURSE_TITLE}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Topbar Right Utilities -->
+    <div class="flex items-center gap-1 sm:gap-2">
+      <!-- Glossary / Terminologi Modal Trigger -->
+      <button onclick="openGlossaryModal()" class="px-2.5 py-1.5 rounded-lg border border-brand-borderLight dark:border-brand-darkBorder hover:bg-blue-50 dark:hover:bg-brand-darkSubtle text-brand-primary dark:text-brand-lightBlue text-xs font-semibold flex items-center gap-1.5 btn-tactile">
+        <span class="material-symbols-outlined text-base">menu_book</span>
+        <span class="hidden md:inline">Terminologi</span>
+      </button>
+
+      <!-- Keyboard Shortcuts Help -->
+      <button onclick="openHelpModal()" class="p-2 rounded-lg text-slate-500 hover:text-brand-primary dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-brand-darkSubtle btn-tactile" title="Panduan Navigasi & Shortcut">
+        <span class="material-symbols-outlined text-lg">help_outline</span>
+      </button>
+
+      <!-- Dark Mode Switch -->
+      <button onclick="toggleTheme()" class="p-2 rounded-lg text-slate-500 hover:text-brand-primary dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-brand-darkSubtle btn-tactile" title="Ganti Tema">
+        <span id="themeIcon" class="material-symbols-outlined text-lg">dark_mode</span>
+      </button>
+
+      <!-- Fullscreen Toggle -->
+      <button onclick="toggleFullscreen()" class="p-2 rounded-lg text-slate-500 hover:text-brand-primary dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-brand-darkSubtle btn-tactile hidden sm:block" title="Layar Penuh">
+        <span class="material-symbols-outlined text-lg">fullscreen</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN STAGE & COLLAPSIBLE SIDEBAR CONTAINER
+       ======================================================================== -->
+  <div class="flex-1 flex overflow-hidden relative">
+    
+    <!-- Backdrop for Mobile Sidebar Drawer -->
+    <div id="sidebarBackdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-30 hidden lg:hidden transition-opacity duration-200"></div>
+
+    <!-- LEFT SIDEBAR: Unit Outline & Progress -->
+    <aside id="courseSidebar" class="fixed lg:static top-14 bottom-14 left-0 w-80 bg-white dark:bg-brand-darkSurface border-r border-brand-borderLight dark:border-brand-darkBorder flex flex-col z-40 transition-all duration-300 ease-in-out -translate-x-full lg:translate-x-0 shadow-xl lg:shadow-none">
+      
+      <!-- Course Info Summary Card -->
+      <div class="p-4 border-b border-brand-borderLight dark:border-brand-darkBorder bg-slate-50/50 dark:bg-brand-darkSubtle/30">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Progres Modul</span>
+          <span id="overallPercentage" class="text-xs font-mono font-bold text-brand-primary dark:text-brand-lightBlue">0%</span>
+        </div>
+        <div class="w-full h-2 bg-slate-200 dark:bg-brand-darkBorder rounded-full overflow-hidden">
+          <div id="progressBarFill" class="h-full bg-brand-primary dark:bg-brand-lightBlue transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <div class="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+          <span id="badgeProgress">1 / 4 Unit</span>
+          <span class="flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Aktif</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Navigation Outline List -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-1" id="outlineNavList">
+        <!-- Rendered dynamically by updateOutlineUI() -->
+      </div>
+
+      <!-- Footer Info in Sidebar -->
+      <div class="p-3 border-t border-brand-borderLight dark:border-brand-darkBorder text-[10px] text-slate-400 flex items-center justify-between">
+        <span>© 2026 {{ORGANIZATION_NAME}}</span>
+        <span class="font-mono">{{COURSE_CODE}}</span>
+      </div>
+    </aside>
+
+    <!-- RIGHT: 16:9 Central Stage Canvas -->
+    <main class="flex-1 bg-brand-iceBg dark:bg-brand-darkBg flex flex-col items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden relative">
+      
+      <!-- Stage Wrapper (16:9 Canvas Box) -->
+      <div class="w-full max-w-6xl h-full max-h-[820px] bg-white dark:bg-brand-darkSurface rounded-2xl border border-brand-borderLight dark:border-brand-darkBorder shadow-md flex flex-col overflow-hidden relative">
+        
+        <!-- Slide Stage Header Bar -->
+        <div class="h-12 border-b border-brand-borderLight dark:border-brand-darkBorder px-4 sm:px-6 flex items-center justify-between shrink-0 bg-slate-50/70 dark:bg-brand-darkSubtle/40">
+          <div class="flex items-center gap-2 truncate">
+            <span id="stageUnitBadge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-primary/10 text-brand-primary dark:text-brand-lightBlue border border-brand-primary/20 shrink-0">
+              UNIT 0
+            </span>
+            <h2 id="stageUnitTitle" class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
+              Pendahuluan Kursus
+            </h2>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Audio Indicator -->
+            <div id="narrationWave" class="hidden items-center gap-0.5 text-brand-primary dark:text-brand-lightBlue px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30">
+              <span class="w-1 h-3 bg-brand-primary dark:bg-brand-lightBlue animate-pulse"></span>
+              <span class="w-1 h-4 bg-brand-primary dark:bg-brand-lightBlue animate-pulse delay-75"></span>
+              <span class="w-1 h-2 bg-brand-primary dark:bg-brand-lightBlue animate-pulse delay-150"></span>
+              <span class="text-[10px] font-mono font-semibold ml-1">AUDIO</span>
+            </div>
+            <!-- Slide Gate Timer Badge -->
+            <span id="gateTimerBadge" class="text-[11px] font-mono font-medium text-slate-400 bg-white dark:bg-brand-darkSurface px-2 py-0.5 rounded border border-slate-200 dark:border-brand-darkBorder">
+              00:05
+            </span>
+          </div>
+        </div>
+
+        <!-- Slide Stage Body (Scrollable Content Container) -->
+        <div id="slideContentContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 focus:outline-none" tabindex="0">
+          
+          <!-- ========================================================================
+               UNIT 0: PENDAHULUAN & HERO SECTION
+               ======================================================================== -->
+          <section id="slide-0" class="slide-unit space-y-6 max-w-4xl mx-auto">
+            <div class="bg-gradient-to-br from-blue-50 via-white to-blue-50/30 dark:from-brand-darkSubtle dark:via-brand-darkSurface dark:to-brand-darkBg p-6 sm:p-8 rounded-2xl border border-blue-100 dark:border-brand-darkBorder">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-brand-primary text-white mb-4 shadow-sm">
+                <span class="material-symbols-outlined text-sm">verified</span>
+                <span>Standar Prosedur Operasional Resmi</span>
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-snug">
+                {{COURSE_TITLE}}
+              </h1>
+              <p class="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                Modul pelatihan interaktif ini dirancang untuk memberikan pemahaman menyeluruh terhadap tahapan, ketentuan khusus, pengukuran kinerja, dan mitigasi risiko operasional sesuai standar mutu perusahaan.
+              </p>
+              
+              <div class="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="p-3.5 rounded-xl bg-white dark:bg-brand-darkSurface border border-brand-borderLight dark:border-brand-darkBorder shadow-sm">
+                  <div class="text-[11px] text-slate-400 font-medium">Nomor Dokumen</div>
+                  <div class="text-xs sm:text-sm font-bold text-brand-primary dark:text-brand-lightBlue font-mono mt-0.5">{{COURSE_CODE}}</div>
+                </div>
+                <div class="p-3.5 rounded-xl bg-white dark:bg-brand-darkSurface border border-brand-borderLight dark:border-brand-darkBorder shadow-sm">
+                  <div class="text-[11px] text-slate-400 font-medium">Target Kelulusan</div>
+                  <div class="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">Min. Skor {{PASSING_SCORE}}%</div>
+                </div>
+                <div class="p-3.5 rounded-xl bg-white dark:bg-brand-darkSurface border border-brand-borderLight dark:border-brand-darkBorder shadow-sm">
+                  <div class="text-[11px] text-slate-400 font-medium">Sertifikasi</div>
+                  <div class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 mt-0.5">E-Certificate Resmi</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Learning Objectives Card -->
+            <div class="p-5 rounded-xl bg-white dark:bg-brand-darkSubtle/20 border border-brand-borderLight dark:border-brand-darkBorder">
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-3">
+                <span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue">flag</span>
+                <span>Tujuan Pembelajaran Modul</span>
+              </h3>
+              <ul class="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                <li class="flex items-start gap-2">
+                  <span class="material-symbols-outlined text-brand-primary text-base shrink-0 mt-0.5">check_circle</span>
+                  <span>Memahami maksud, ruang lingkup, dan integrasi standar acuan operasional.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="material-symbols-outlined text-brand-primary text-base shrink-0 mt-0.5">check_circle</span>
+                  <span>Menganalisis alur proses swimlane aktivitas, PIC penanggung jawab, dan produk dokumen.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="material-symbols-outlined text-brand-primary text-base shrink-0 mt-0.5">check_circle</span>
+                  <span>Menguasai ketentuan khusus keuangan, evaluasi berkala, dan mitigasi risiko kritis.</span>
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          <!-- ========================================================================
+               UNIT 1: KETENTUAN UMUM & MATRIKS (TABBED / SPLIT PANEL EXAMPLE)
+               ======================================================================== -->
+          <section id="slide-1" class="slide-unit space-y-6 max-w-4xl mx-auto hidden">
+            <div>
+              <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Maksud, Ruang Lingkup & Dasar Kebijakan</h2>
+              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Eksplorasi setiap pilar melalui tab interaktif di bawah ini.</p>
+            </div>
+
+            <!-- Tab Selector -->
+            <div class="flex border-b border-brand-borderLight dark:border-brand-darkBorder gap-2">
+              <button onclick="switchTab('tab-maksud', this)" class="tab-btn px-4 py-2 text-xs font-bold border-b-2 border-brand-primary text-brand-primary dark:text-brand-lightBlue transition-all">
+                Maksud & Tujuan
+              </button>
+              <button onclick="switchTab('tab-lingkup', this)" class="tab-btn px-4 py-2 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-brand-primary transition-all">
+                Ruang Lingkup
+              </button>
+              <button onclick="switchTab('tab-referensi', this)" class="tab-btn px-4 py-2 text-xs font-bold border-b-2 border-transparent text-slate-500 hover:text-brand-primary transition-all">
+                Standar Acuan
+              </button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div id="tab-maksud" class="tab-panel p-5 rounded-xl bg-white dark:bg-brand-darkSubtle/30 border border-brand-borderLight dark:border-brand-darkBorder space-y-3">
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white">Maksud & Tujuan Standar Prosedur</h4>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                Memberikan panduan tata kelola penutupan proyek yang tertib, akuntabel, dan transparan, memastikan penyelesaian hak dan kewajiban hukum serta finansial perusahaan terpenuhi 100%.
+              </p>
+            </div>
+
+            <div id="tab-lingkup" class="tab-panel p-5 rounded-xl bg-white dark:bg-brand-darkSubtle/30 border border-brand-borderLight dark:border-brand-darkBorder space-y-3 hidden">
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white">Ruang Lingkup Penerapan</h4>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                Berlaku untuk seluruh unit kerja, divisi operasi, dan proyek konstruksi maupun EPC di lingkungan perusahaan, mencakup fase pra-serah terima hingga penutupan buku akhir.
+              </p>
+            </div>
+
+            <div id="tab-referensi" class="tab-panel p-5 rounded-xl bg-white dark:bg-brand-darkSubtle/30 border border-brand-borderLight dark:border-brand-darkBorder space-y-3 hidden">
+              <h4 class="text-sm font-bold text-slate-900 dark:text-white">Standar Internasional & Regulasi</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                <div class="p-3 rounded-lg bg-blue-50/50 dark:bg-brand-darkSubtle border border-blue-100 dark:border-brand-darkBorder">
+                  <div class="font-bold text-xs text-brand-primary dark:text-brand-lightBlue">ISO 9001:2015</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Sistem Manajemen Mutu</div>
+                </div>
+                <div class="p-3 rounded-lg bg-blue-50/50 dark:bg-brand-darkSubtle border border-blue-100 dark:border-brand-darkBorder">
+                  <div class="font-bold text-xs text-brand-primary dark:text-brand-lightBlue">ISO 19650</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Manajemen Informasi BIM</div>
+                </div>
+                <div class="p-3 rounded-lg bg-blue-50/50 dark:bg-brand-darkSubtle border border-blue-100 dark:border-brand-darkBorder">
+                  <div class="font-bold text-xs text-brand-primary dark:text-brand-lightBlue">ISO 45001:2018</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Keselamatan & Kesehatan Kerja</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========================================================================
+               UNIT 2: INTERACTIVE FLOWCHART & HOTSPOTS
+               ======================================================================== -->
+          <section id="slide-2" class="slide-unit space-y-6 max-w-5xl mx-auto hidden">
+            <div>
+              <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Alur Proses Interaktif (Flowchart Swimlane)</h2>
+              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Klik setiap simpul aktivitas untuk membuka penjelasan detail dan PIC penanggung jawab.</p>
+            </div>
+
+            <!-- Horizontal Flowchart Stage -->
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-brand-darkSubtle/30 border border-brand-borderLight dark:border-brand-darkBorder overflow-x-auto">
+              <div class="min-w-[680px] flex items-center justify-between gap-3 relative py-4">
+                
+                <!-- Step 1 Hotspot -->
+                <button onclick="showHotspotDetail(1)" class="flex-1 p-3.5 rounded-xl bg-white dark:bg-brand-darkSurface border-2 border-brand-primary text-left hover:shadow-md transition-all btn-tactile group">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-brand-primary dark:text-brand-lightBlue">TAHAP 1</span>
+                    <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-brand-primary">touch_app</span>
+                  </div>
+                  <div class="text-xs font-bold text-slate-800 dark:text-slate-100">Fisik 100% & BAST I</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Pemeriksaan Hold Point V</div>
+                </button>
+
+                <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">arrow_forward</span>
+
+                <!-- Step 2 Hotspot -->
+                <button onclick="showHotspotDetail(2)" class="flex-1 p-3.5 rounded-xl bg-white dark:bg-brand-darkSurface border-2 border-brand-secondary text-left hover:shadow-md transition-all btn-tactile group">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-brand-darkSubtle text-brand-secondary dark:text-brand-secondaryLight">TAHAP 2</span>
+                    <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-brand-secondary">touch_app</span>
+                  </div>
+                  <div class="text-xs font-bold text-slate-800 dark:text-slate-100">Tutup Buku I</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Rekonsiliasi & Deaktivasi SAP</div>
+                </button>
+
+                <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">arrow_forward</span>
+
+                <!-- Step 3 Hotspot -->
+                <button onclick="showHotspotDetail(3)" class="flex-1 p-3.5 rounded-xl bg-white dark:bg-brand-darkSurface border-2 border-brand-primary text-left hover:shadow-md transition-all btn-tactile group">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-brand-primary dark:text-brand-lightBlue">TAHAP 3</span>
+                    <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-brand-primary">touch_app</span>
+                  </div>
+                  <div class="text-xs font-bold text-slate-800 dark:text-slate-100">Masa Pemeliharaan</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Evaluasi triwulan hutang</div>
+                </button>
+
+                <span class="material-symbols-outlined text-slate-300 dark:text-slate-600">arrow_forward</span>
+
+                <!-- Step 4 Hotspot -->
+                <button onclick="showHotspotDetail(4)" class="flex-1 p-3.5 rounded-xl bg-white dark:bg-brand-darkSurface border-2 border-emerald-500 text-left hover:shadow-md transition-all btn-tactile group">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400">SELESAI</span>
+                    <span class="material-symbols-outlined text-sm text-slate-400 group-hover:text-emerald-600">touch_app</span>
+                  </div>
+                  <div class="text-xs font-bold text-slate-800 dark:text-slate-100">BAST II & Tutup Akhir</div>
+                  <div class="text-[11px] text-slate-500 mt-1">Lesson learned & serah arsip</div>
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Dynamic Hotspot Info Box -->
+            <div id="hotspotDetailBox" class="p-5 rounded-xl bg-white dark:bg-brand-darkSurface border border-brand-primary/30 shadow-sm transition-all duration-200">
+              <div class="flex items-center justify-between mb-2">
+                <span id="hsTitle" class="text-sm font-bold text-brand-primary dark:text-brand-lightBlue">Pilih salah satu tahap di atas</span>
+                <span id="hsPic" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-100 dark:bg-brand-darkSubtle text-slate-600 dark:text-slate-300">-</span>
+              </div>
+              <p id="hsDesc" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                Silakan klik simpul tahapan di atas untuk menampilkan uraian prosedur, verifikator berwenang, dan dokumen output yang disyaratkan.
+              </p>
+            </div>
+          </section>
+
+          <!-- ========================================================================
+               UNIT 3: UJI PEMAHAMAN (ANTI-CHEAT QUIZ ENGINE)
+               ======================================================================== -->
+          <section id="slide-3" class="slide-unit space-y-6 max-w-3xl mx-auto hidden">
+            <div class="flex items-center justify-between pb-3 border-b border-brand-borderLight dark:border-brand-darkBorder">
+              <div>
+                <h2 class="text-lg font-bold text-slate-900 dark:text-white">Uji Pemahaman Standar Operasional</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Selesaikan pertanyaan untuk menguji penguasaan konsep Anda.</p>
+              </div>
+              <div class="text-right">
+                <div class="text-[11px] text-slate-400">Pertanyaan</div>
+                <div id="quizQuestionCounter" class="text-sm font-mono font-bold text-brand-primary dark:text-brand-lightBlue">1 / 5</div>
+              </div>
+            </div>
+
+            <!-- Quiz Stage Container -->
+            <div id="quizActiveContainer" class="p-6 rounded-2xl bg-white dark:bg-brand-darkSurface border border-brand-borderLight dark:border-brand-darkBorder shadow-sm space-y-5">
+              <div id="quizQuestionStem" class="text-sm sm:text-base font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
+                Loading pertanyaan...
+              </div>
+
+              <!-- Options List -->
+              <div id="quizOptionsList" class="space-y-2.5">
+                <!-- Dynamically rendered -->
+              </div>
+
+              <!-- Feedback Banner (Hidden by default) -->
+              <div id="quizFeedbackBox" class="p-4 rounded-xl border text-xs sm:text-sm hidden transition-all duration-200">
+                <div id="quizFeedbackHeader" class="font-bold flex items-center gap-1.5 mb-1"></div>
+                <div id="quizFeedbackBody" class="text-slate-600 dark:text-slate-300 leading-relaxed"></div>
+              </div>
+
+              <!-- Quiz Action Buttons -->
+              <div class="flex justify-end gap-2 pt-2">
+                <button id="btnSubmitAnswer" onclick="submitQuizAnswer()" class="px-5 py-2 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold shadow-sm btn-tactile">
+                  Periksa Jawaban
+                </button>
+                <button id="btnNextQuestion" onclick="goToNextQuestion()" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold shadow-sm btn-tactile hidden">
+                  Pertanyaan Selanjutnya
+                </button>
+              </div>
+            </div>
+
+            <!-- Quiz Score Summary (Shown on completion) -->
+            <div id="quizSummaryContainer" class="p-8 rounded-2xl bg-white dark:bg-brand-darkSurface border border-brand-borderLight dark:border-brand-darkBorder shadow-sm text-center space-y-4 hidden">
+              <div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/50 text-brand-primary dark:text-brand-lightBlue flex items-center justify-center mx-auto">
+                <span class="material-symbols-outlined text-3xl">military_tech</span>
+              </div>
+              <h3 class="text-xl font-bold text-slate-900 dark:text-white">Hasil Uji Pemahaman</h3>
+              <div class="text-3xl font-extrabold font-mono text-brand-primary dark:text-brand-lightBlue" id="quizFinalScoreDisplay">0 / 100</div>
+              <p id="quizPassFailMessage" class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto"></p>
+              
+              <div class="pt-4 flex items-center justify-center gap-3">
+                <button onclick="resetQuiz()" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-brand-darkBorder text-xs font-semibold hover:bg-slate-50 btn-tactile">
+                  Ulangi Kuis
+                </button>
+                <button onclick="goToSlide(4)" class="px-5 py-2 rounded-xl bg-brand-primary text-white text-xs font-bold shadow-sm hover:bg-brand-primaryHover btn-tactile">
+                  Lanjut ke Penutup
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ========================================================================
+               UNIT 4: PENUTUP & SERTIFIKASI RESMI
+               ======================================================================== -->
+          <section id="slide-4" class="slide-unit space-y-6 max-w-3xl mx-auto text-center hidden">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+              <span class="material-symbols-outlined text-3xl">verified</span>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Selamat! Anda Telah Menyelesaikan Pelatihan</h2>
+              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-lg mx-auto">
+                Seluruh materi standar operasional dan evaluasi uji pemahaman telah berhasil diselesaikan secara komprehensif.
+              </p>
+            </div>
+
+            <!-- Certificate Action Box -->
+            <div class="p-6 rounded-2xl bg-white dark:bg-brand-darkSurface border border-brand-borderLight dark:border-brand-darkBorder shadow-sm space-y-4 max-w-md mx-auto text-left">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nama Lengkap Peserta (Untuk Sertifikat)</label>
+                <input type="text" id="participantNameInput" value="Ir. Budi Santoso, MT" placeholder="Masukkan nama lengkap Anda..." class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-brand-darkBorder bg-slate-50 dark:bg-brand-darkSubtle text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-primary" />
+              </div>
+              <button onclick="printOfficialCertificate()" class="w-full py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primaryHover text-white text-xs font-bold shadow-md flex items-center justify-center gap-2 btn-tactile">
+                <span class="material-symbols-outlined text-base">print</span>
+                <span>Cetak Sertifikat Resmi (PDF)</span>
+              </button>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- ========================================================================
+             BOTTOM PLAYBAR (ARTICULATE STORYLINE / ISPRING PLAYER DOCK)
+             ======================================================================== -->
+        <footer class="h-14 bg-white dark:bg-brand-darkSurface border-t border-brand-borderLight dark:border-brand-darkBorder px-3 sm:px-5 flex items-center justify-between shrink-0 shadow-sm z-20">
+          
+          <!-- Audio Play/Pause & Scrubber Controls -->
+          <div class="flex items-center gap-2 sm:gap-3 flex-1 max-w-sm sm:max-w-md">
+            <button id="btnPlayPause" onclick="togglePlayAudio()" class="w-8 h-8 rounded-full bg-brand-primary text-white flex items-center justify-center hover:bg-brand-primaryHover btn-tactile shadow-sm shrink-0" aria-label="Play/Pause Audio">
+              <span id="playPauseIcon" class="material-symbols-outlined text-lg">play_arrow</span>
+            </button>
+            
+            <div class="flex-1 flex items-center gap-2">
+              <input type="range" id="seekBar" min="0" max="100" value="0" step="0.1" class="w-full h-1.5 rounded-lg appearance-none cursor-pointer" oninput="handleSeek(this.value)" />
+              <span id="timeDurationDisplay" class="text-[10px] font-mono text-slate-400 shrink-0">00:00 / 00:00</span>
+            </div>
+
+            <!-- CC Toggle Button -->
+            <button id="btnCCToggle" onclick="toggleCC()" class="p-1.5 rounded-lg border border-slate-200 dark:border-brand-darkBorder text-slate-500 hover:text-brand-primary text-xs font-bold flex items-center justify-center btn-tactile" title="Nyalakan/Matikan Teks Terjemahan">
+              CC
+            </button>
+          </div>
+
+          <!-- Slide Prev / Next Navigation -->
+          <div class="flex items-center gap-1.5 sm:gap-2">
+            <button id="btnPrevSlide" onclick="goToPrevSlide()" class="px-3 py-1.5 rounded-xl border border-brand-borderLight dark:border-brand-darkBorder text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-brand-darkSubtle text-xs font-semibold flex items-center gap-1 btn-tactile disabled:opacity-40 disabled:cursor-not-allowed">
+              <span class="material-symbols-outlined text-base">chevron_left</span>
+              <span class="hidden sm:inline">Sebelumnya</span>
+            </button>
+            <button id="btnNextSlide" onclick="goToNextSlide()" class="px-3.5 py-1.5 rounded-xl bg-brand-primary text-white hover:bg-brand-primaryHover text-xs font-bold flex items-center gap-1 shadow-sm btn-tactile disabled:opacity-40 disabled:cursor-not-allowed">
+              <span class="hidden sm:inline">Selanjutnya</span>
+              <span class="material-symbols-outlined text-base">chevron_right</span>
+            </button>
+          </div>
+        </footer>
+
+        <!-- Closed Captions Dock (Slide-up transcript panel) -->
+        <div id="captionDock" class="max-h-0 opacity-0 overflow-hidden transition-all duration-200 bg-slate-900/90 text-white text-xs px-4 py-2 text-center absolute bottom-14 left-0 right-0 z-30 pointer-events-none">
+          <p id="captionText" class="max-w-2xl mx-auto leading-snug">Transkrip audio akan tampil di sini saat narasi diputar.</p>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: GLOSSARY / TERMINOLOGI
+       ======================================================================== -->
+  <div id="glossaryModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-brand-darkSurface rounded-2xl max-w-xl w-full border border-brand-borderLight dark:border-brand-darkBorder shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
+      <div class="p-4 border-b border-brand-borderLight dark:border-brand-darkBorder flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-brand-primary dark:text-brand-lightBlue">menu_book</span>
+          <h3 class="text-sm font-bold text-slate-900 dark:text-white">Terminologi & Definisi Resmi</h3>
+        </div>
+        <button onclick="closeGlossaryModal()" class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-brand-darkSubtle text-slate-400">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="p-4 overflow-y-auto space-y-3" id="glossaryListContainer">
+        <!-- Rendered dynamically from GLOSSARY_DATA -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL: KEYBOARD HELP & SHORTCUTS
+       ======================================================================== -->
+  <div id="helpModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-brand-darkSurface rounded-2xl max-w-md w-full border border-brand-borderLight dark:border-brand-darkBorder shadow-2xl p-5 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-brand-borderLight dark:border-brand-darkBorder">
+        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Pintasan Keyboard (WCAG 2.2)</h3>
+        <button onclick="closeHelpModal()" class="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-brand-darkSubtle text-slate-400">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-brand-darkSubtle">
+          <span>Slide Berikutnya</span>
+          <kbd class="px-2 py-0.5 rounded bg-white dark:bg-brand-darkSurface border font-mono">Panah Kanan →</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-brand-darkSubtle">
+          <span>Slide Sebelumnya</span>
+          <kbd class="px-2 py-0.5 rounded bg-white dark:bg-brand-darkSurface border font-mono">← Panah Kiri</kbd>
+        </div>
+        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-brand-darkSubtle">
+          <span>Play / Pause Audio</span>
+          <kbd class="px-2 py-0.5 rounded bg-white dark:bg-brand-darkSurface border font-mono">Spasi</kbd>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       PRINTABLE OFFICIAL CERTIFICATE (A4 LANDSCAPE)
+       ======================================================================== -->
+  <div id="certificatePrintArea" class="hidden">
+    <div class="w-[1050px] h-[720px] bg-white border-[14px] border-[#2B73BD] p-12 flex flex-col justify-between text-center relative shadow-none">
+      <div class="border-[2px] border-[#5A89B8] p-8 h-full flex flex-col justify-between relative">
+        <div class="text-center">
+          <div class="text-base font-bold text-[#5A89B8] tracking-widest uppercase">{{ORGANIZATION_NAME}}</div>
+          <div class="text-3xl font-extrabold text-[#2B73BD] mt-2 uppercase tracking-wide">SERTIFIKAT KELULUSAN</div>
+          <div class="text-xs text-slate-500 font-mono mt-1">NO: CERT/{{COURSE_CODE}}/2026/001</div>
+        </div>
+
+        <div class="my-6">
+          <div class="text-xs text-slate-500 italic">Diberikan secara resmi kepada:</div>
+          <div id="certParticipantName" class="text-2xl font-bold text-slate-900 border-b-2 border-[#2B73BD] inline-block px-8 py-1 mt-2">
+            Peserta Pelatihan
+          </div>
+          <p class="text-xs text-slate-600 max-w-lg mx-auto mt-4 leading-relaxed">
+            Telah menyelesaikan seluruh modul dan lulus evaluasi pemahaman standar operasional prosedur:
+          </p>
+          <div class="text-sm font-bold text-[#2B73BD] mt-1">{{COURSE_TITLE}} ({{COURSE_CODE}})</div>
+          <div class="text-xs font-semibold text-slate-700 mt-1">Dengan perolehan skor: <span id="certScoreDisplay" class="font-mono text-emerald-600 font-bold">100%</span></div>
+        </div>
+
+        <div class="flex justify-between items-end px-12 pt-4">
+          <div class="text-left text-xs">
+            <div class="text-slate-400">Tanggal Terbit:</div>
+            <div id="certDateDisplay" class="font-bold text-slate-800">5 Oktober 2026</div>
+          </div>
+          <div class="text-center text-xs">
+            <div class="w-36 border-b border-slate-400 mb-1"></div>
+            <div class="font-bold text-slate-800">Head of Human Capital</div>
+            <div class="text-[10px] text-slate-400">{{ORGANIZATION_NAME}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       JAVASCRIPT ARCHITECTURE & TEMPLATE CONTROLLER
+       ======================================================================== -->
+  <script>
+    // ========================================================================
+    // 1. CONFIGURATION DATA (CUSTOMIZE FOR NEW COURSES)
+    // ========================================================================
+    const COURSE_CONFIG = {
+      title: "{{COURSE_TITLE}}",
+      code: "{{COURSE_CODE}}",
+      organization: "{{ORGANIZATION_NAME}}",
+      passingScore: 80,
+      gateSecondsPerSlide: 5,
+      devMode: true // Set to false in production to enforce slide gating
+    };
+
+    // Course Units Definition
+    const COURSE_UNITS = [
+      { id: 0, title: "Pendahuluan", subtitle: "Latar Belakang & Acuan", icon: "home", duration: "03:00" },
+      { id: 1, title: "Ketentuan Umum", subtitle: "Maksud, Lingkup, Regulasi", icon: "menu_book", duration: "04:30" },
+      { id: 2, title: "Alur Proses", subtitle: "Diagram Swimlane Interaktif", icon: "account_tree", duration: "06:00" },
+      { id: 3, title: "Uji Pemahaman", subtitle: "Evaluasi Kognitif C2", icon: "quiz", duration: "05:00" },
+      { id: 4, title: "Penutup", subtitle: "Sertifikasi Resmi", icon: "workspace_premium", duration: "01:30" }
+    ];
+
+    // Glossary / Terminologi Data
+    const GLOSSARY_DATA = [
+      { term: "BAST I", definition: "Berita Acara Serah Terima Pertama saat pekerjaan fisik mencapai 100%." },
+      { term: "BAST II", definition: "Berita Acara Serah Terima Akhir setelah masa pemeliharaan selesai dan seluruh cacat diperbaiki." },
+      { term: "Hold Point V", definition: "Titik henti kendali mutu dan evaluasi sebelum pelaksanaan BAST I dan Tutup Buku I." },
+      { term: "Tutup Buku I", definition: "Pertanggungjawaban keuangan proyek tahap pertama pasca BAST I." },
+      { term: "Tutup Buku II", definition: "Pertanggungjawaban keuangan akhir dan penutupan seluruh akun proyek secara permanen." }
+    ];
+
+    // Quiz Questions Data (Randomized options & SHA-256 encrypted verification)
+    const QUIZ_QUESTIONS = [
+      {
+        question: "Kapan titik henti Hold Point V wajib dilaksanakan dalam siklus proyek?",
+        options: [
+          "Saat pekerjaan fisik di lapangan telah mencapai prestasi 100%",
+          "Saat masa pemeliharaan berakhir dan BAST II diterbitkan",
+          "Sebelum peresmian proyek oleh pemilik pekerjaan",
+          "Ketika seluruh user SAP proyek telah dinonaktifkan"
+        ],
+        correctIndex: 0,
+        explanation: "Hold Point V wajib digelar saat progres fisik telah 100% untuk memverifikasi kesiapan BAST-1 dan Tutup Buku I."
+      },
+      {
+        question: "Dokumen apakah yang menandai berakhirnya masa pemeliharaan dan pengembalian jaminan?",
+        options: [
+          "Berita Acara Serah Terima Kedua (BAST II)",
+          "Berita Acara Serah Terima Pertama (BAST I)",
+          "Laporan Verifikasi Tutup Buku I",
+          "Lembar Evaluasi Hutang Vendor"
+        ],
+        correctIndex: 0,
+        explanation: "BAST II merupakan dokumen legal serah terima akhir setelah seluruh garansi dan kewajiban masa pemeliharaan terselesaikan."
+      }
+    ];
+
+    // Hotspot Data for Slide 2
+    const HOTSPOT_DATA = {
+      1: {
+        title: "Tahap 1: Fisik 100% & BAST I",
+        pic: "Project Manager & Tim QC",
+        desc: "Pemeriksaan bersama fisik 100%, verifikasi Hold Point V, penyusunan daftar cacat (defect list), dan penandatanganan BAST I bersama pemilik proyek."
+      },
+      2: {
+        title: "Tahap 2: Tutup Buku I & Rekonsiliasi",
+        pic: "Project Manager & Finance",
+        desc: "Penyusunan laporan Tutup Buku I, rekonsiliasi hutang vendor, penetapan cadangan hutang pemeliharaan, serta deaktivasi user akun SAP proyek."
+      },
+      3: {
+        title: "Tahap 3: Pelaksanaan Masa Pemeliharaan",
+        pic: "Tim Pemeliharaan & DVO",
+        desc: "Monitoring rutin perbaikan cacat fisik, pelaporan triwulan realisasi biaya pemeliharaan ke SM Finance DVO, dan pengendalian risiko garansi."
+      },
+      4: {
+        title: "Tahap 4: BAST II & Tutup Buku II",
+        pic: "SVP Divisi Operasi & Direksi",
+        desc: "Pemeriksaan akhir bersama owner, penandatanganan BAST II, pencairan jaminan pemeliharaan, penyusunan Lesson Learned, dan Tutup Buku II final."
+      }
+    };
+
+    // Narration Transcripts for Audio & CC
+    const NARRATION_TRANSCRIPTS = {
+      0: "Selamat datang di modul pelatihan interaktif. Modul ini membekali Anda dengan standar prosedur penutupan proyek yang akuntabel dan transparan.",
+      1: "Pahami maksud dan tujuan serta ruang lingkup penerapan prosedur operasional yang terintegrasi dengan standar ISO 9001, 19650 BIM, dan 45001 K3.",
+      2: "Cermati alur proses swimlane interaktif. Klik pada setiap tahapan untuk melihat rincian aktivitas, penanggung jawab, dan produk dokumen yang disyaratkan.",
+      3: "Uji pemahaman Anda melalui evaluasi kognitif kuis. Capai nilai minimal 80 persen untuk berhak mendapatkan sertifikat kelulusan.",
+      4: "Selamat! Anda telah menuntaskan seluruh materi. Masukkan nama lengkap Anda untuk mencetak sertifikat kelulusan resmi."
+    };
+
+    // ========================================================================
+    // 2. STATE CONTROLLER
+    // ========================================================================
+    let state = {
+      currentSlide: 0,
+      totalSlides: COURSE_UNITS.length,
+      completedSlides: new Set([0]),
+      isSidebarOpen: window.innerWidth >= 1024,
+      isDarkMode: false,
+      isPlayingAudio: false,
+      isCCOpen: false,
+      gateSecondsLeft: COURSE_CONFIG.gateSecondsPerSlide,
+      gateTimerInterval: null,
+      quizCurrentIndex: 0,
+      quizAnswers: [],
+      quizScore: 0
+    };
+
+    // Web Audio Tactile Synthesizer
+    function playTone(type) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        if (type === 'click') {
+          osc.frequency.setValueAtTime(450, ctx.currentTime);
+          gain.gain.setValueAtTime(0.08, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.06);
+        } else if (type === 'correct') {
+          osc.frequency.setValueAtTime(523.25, ctx.currentTime); // C5
+          osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.08); // E5
+          gain.gain.setValueAtTime(0.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.25);
+        } else if (type === 'wrong') {
+          osc.frequency.setValueAtTime(220, ctx.currentTime);
+          osc.frequency.setValueAtTime(180, ctx.currentTime + 0.08);
+          gain.gain.setValueAtTime(0.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.25);
+        }
+      } catch (e) {}
+    }
+
+    // ========================================================================
+    // 3. SLIDE TRANSITION & GATE TIMER ENGINE
+    // ========================================================================
+    function goToSlide(slideIndex) {
+      if (slideIndex < 0 || slideIndex >= state.totalSlides) return;
+      playTone('click');
+
+      // Hide all slides
+      document.querySelectorAll(".slide-unit").forEach(el => el.classList.add("hidden"));
+
+      // Show targeted slide
+      const target = document.getElementById(`slide-${slideIndex}`);
+      if (target) {
+        target.classList.remove("hidden");
+        document.getElementById("slideContentContainer").scrollTop = 0;
+      }
+
+      state.currentSlide = slideIndex;
+      state.completedSlides.add(slideIndex);
+
+      // Update Header Badges
+      const unit = COURSE_UNITS[slideIndex];
+      document.getElementById("stageUnitBadge").innerText = `UNIT ${unit.id}`;
+      document.getElementById("stageUnitTitle").innerText = unit.title;
+
+      // Update CC Caption
+      document.getElementById("captionText").innerText = NARRATION_TRANSCRIPTS[slideIndex] || "";
+
+      // Update Nav Buttons
+      document.getElementById("btnPrevSlide").disabled = (slideIndex === 0);
+      const isLast = (slideIndex === state.totalSlides - 1);
+      document.getElementById("btnNextSlide").disabled = isLast;
+
+      // Start Gate Countdown
+      startSlideGateTimer();
+
+      // Refresh Outline List
+      updateOutlineUI();
+
+      // Initialize quiz if on quiz slide
+      if (slideIndex === 3) {
+        renderQuizQuestion();
+      }
+    }
+
+    function goToNextSlide() {
+      if (state.currentSlide < state.totalSlides - 1) {
+        goToSlide(state.currentSlide + 1);
+      }
+    }
+
+    function goToPrevSlide() {
+      if (state.currentSlide > 0) {
+        goToSlide(state.currentSlide - 1);
+      }
+    }
+
+    function startSlideGateTimer() {
+      clearInterval(state.gateTimerInterval);
+      state.gateSecondsLeft = COURSE_CONFIG.devMode ? 0 : COURSE_CONFIG.gateSecondsPerSlide;
+      updateGateTimerUI();
+
+      if (state.gateSecondsLeft > 0) {
+        state.gateTimerInterval = setInterval(() => {
+          state.gateSecondsLeft--;
+          updateGateTimerUI();
+          if (state.gateSecondsLeft <= 0) {
+            clearInterval(state.gateTimerInterval);
+          }
+        }, 1000);
+      }
+    }
+
+    function updateGateTimerUI() {
+      const badge = document.getElementById("gateTimerBadge");
+      if (state.gateSecondsLeft > 0) {
+        const sec = state.gateSecondsLeft < 10 ? `0${state.gateSecondsLeft}` : state.gateSecondsLeft;
+        badge.innerText = `00:${sec}`;
+        badge.classList.remove("text-emerald-500");
+        badge.classList.add("text-slate-400");
+      } else {
+        badge.innerText = "LENGKAP";
+        badge.classList.remove("text-slate-400");
+        badge.classList.add("text-emerald-500", "font-bold");
+      }
+    }
+
+    // ========================================================================
+    // 4. OUTLINE & SIDEBAR CONTROLLER
+    // ========================================================================
+    function updateOutlineUI() {
+      const container = document.getElementById("outlineNavList");
+      container.innerHTML = COURSE_UNITS.map((u, idx) => {
+        const isCurrent = idx === state.currentSlide;
+        const isCompleted = state.completedSlides.has(idx);
+        const isUnlocked = COURSE_CONFIG.devMode || isCompleted || idx <= state.currentSlide + 1;
+
+        let iconColor = isCurrent ? "text-brand-primary dark:text-brand-lightBlue font-bold" : (isCompleted ? "text-brand-primary" : "text-slate-400");
+        let activeBg = isCurrent ? "bg-brand-primary/10 dark:bg-brand-darkSubtle border-l-4 border-brand-primary dark:border-brand-lightBlue" : "hover:bg-slate-100 dark:hover:bg-brand-darkSubtle/60";
+
+        return `
+          <button onclick="goToSlide(${idx})" class="w-full text-left py-2 px-2.5 rounded-xl transition-all flex items-center gap-3 ${activeBg} ${isUnlocked ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}">
+            <span class="material-symbols-outlined text-base ${iconColor} shrink-0">
+              ${isCompleted ? 'check_circle' : (isUnlocked ? u.icon : 'lock')}
+            </span>
+            <div class="flex-1 truncate">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">${u.title}</div>
+            </div>
+            <span class="text-xs font-mono text-slate-500 dark:text-slate-400 shrink-0">${u.duration}</span>
+          </button>
+        `;
+      }).join('');
+
+      const pct = Math.round((state.completedSlides.size / state.totalSlides) * 100);
+      document.getElementById("overallPercentage").innerText = `${pct}%`;
+      document.getElementById("progressBarFill").style.width = `${pct}%`;
+      document.getElementById("badgeProgress").innerText = `${state.currentSlide + 1} / ${state.totalSlides} Unit`;
+    }
+
+    function toggleSidebar(forceState) {
+      playTone('click');
+      const sidebar = document.getElementById("courseSidebar");
+      const backdrop = document.getElementById("sidebarBackdrop");
+      const isMobile = window.innerWidth < 1024;
+
+      if (typeof forceState === "boolean") {
+        state.isSidebarOpen = forceState;
+      } else {
+        state.isSidebarOpen = !state.isSidebarOpen;
+      }
+
+      if (isMobile) {
+        if (state.isSidebarOpen) {
+          sidebar.classList.remove("-translate-x-full");
+          backdrop.classList.remove("hidden");
+        } else {
+          sidebar.classList.add("-translate-x-full");
+          backdrop.classList.add("hidden");
+        }
+      } else {
+        if (state.isSidebarOpen) {
+          sidebar.style.width = "20rem";
+          sidebar.style.opacity = "1";
+        } else {
+          sidebar.style.width = "0rem";
+          sidebar.style.opacity = "0";
+        }
+      }
+    }
+
+    // ========================================================================
+    // 5. INTERACTIVE COMPONENTS (TABS, HOTSPOTS, MODALS)
+    // ========================================================================
+    function switchTab(tabId, btn) {
+      playTone('click');
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.add("hidden"));
+      document.getElementById(tabId).classList.remove("hidden");
+
+      document.querySelectorAll(".tab-btn").forEach(b => {
+        b.classList.remove("border-brand-primary", "text-brand-primary", "dark:text-brand-lightBlue");
+        b.classList.add("border-transparent", "text-slate-500");
+      });
+      btn.classList.add("border-brand-primary", "text-brand-primary", "dark:text-brand-lightBlue");
+      btn.classList.remove("border-transparent", "text-slate-500");
+    }
+
+    function showHotspotDetail(id) {
+      playTone('click');
+      const data = HOTSPOT_DATA[id];
+      if (!data) return;
+      document.getElementById("hsTitle").innerText = data.title;
+      document.getElementById("hsPic").innerText = `PIC: ${data.pic}`;
+      document.getElementById("hsDesc").innerText = data.desc;
+    }
+
+    function openGlossaryModal() {
+      playTone('click');
+      const container = document.getElementById("glossaryListContainer");
+      container.innerHTML = GLOSSARY_DATA.map(g => `
+        <div class="p-3 rounded-xl bg-slate-50 dark:bg-brand-darkSubtle border border-brand-borderLight dark:border-brand-darkBorder">
+          <div class="text-xs font-bold text-brand-primary dark:text-brand-lightBlue">${g.term}</div>
+          <div class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">${g.definition}</div>
+        </div>
+      `).join('');
+      document.getElementById("glossaryModal").classList.remove("hidden");
+    }
+
+    function closeGlossaryModal() {
+      playTone('click');
+      document.getElementById("glossaryModal").classList.add("hidden");
+    }
+
+    function openHelpModal() {
+      playTone('click');
+      document.getElementById("helpModal").classList.remove("hidden");
+    }
+
+    function closeHelpModal() {
+      playTone('click');
+      document.getElementById("helpModal").classList.add("hidden");
+    }
+
+    function toggleCC() {
+      playTone('click');
+      state.isCCOpen = !state.isCCOpen;
+      const dock = document.getElementById("captionDock");
+      const btn = document.getElementById("btnCCToggle");
+      if (state.isCCOpen) {
+        dock.style.maxHeight = "60px";
+        dock.style.opacity = "1";
+        btn.classList.add("bg-brand-primary", "text-white");
+      } else {
+        dock.style.maxHeight = "0";
+        dock.style.opacity = "0";
+        btn.classList.remove("bg-brand-primary", "text-white");
+      }
+    }
+
+    function togglePlayAudio() {
+      playTone('click');
+      state.isPlayingAudio = !state.isPlayingAudio;
+      const icon = document.getElementById("playPauseIcon");
+      const wave = document.getElementById("narrationWave");
+      if (state.isPlayingAudio) {
+        icon.innerText = "pause";
+        wave.classList.remove("hidden");
+        wave.classList.add("flex");
+      } else {
+        icon.innerText = "play_arrow";
+        wave.classList.add("hidden");
+        wave.classList.remove("flex");
+      }
+    }
+
+    function handleSeek(val) {
+      document.getElementById("seekBar").style.setProperty("--progress", `${val}%`);
+    }
+
+    function toggleTheme() {
+      playTone('click');
+      state.isDarkMode = !state.isDarkMode;
+      const html = document.documentElement;
+      const icon = document.getElementById("themeIcon");
+      if (state.isDarkMode) {
+        html.classList.add("dark");
+        icon.innerText = "light_mode";
+      } else {
+        html.classList.remove("dark");
+        icon.innerText = "dark_mode";
+      }
+    }
+
+    function toggleFullscreen() {
+      playTone('click');
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // ========================================================================
+    // 6. QUIZ ENGINE (ANTI-CHEAT & LEVEL C2 UNDERSTANDING)
+    // ========================================================================
+    function renderQuizQuestion() {
+      const q = QUIZ_QUESTIONS[state.quizCurrentIndex];
+      if (!q) return;
+
+      document.getElementById("quizQuestionCounter").innerText = `${state.quizCurrentIndex + 1} / ${QUIZ_QUESTIONS.length}`;
+      document.getElementById("quizQuestionStem").innerText = q.question;
+
+      const optionsContainer = document.getElementById("quizOptionsList");
+      optionsContainer.innerHTML = q.options.map((opt, i) => `
+        <label class="flex items-center gap-3 p-3.5 rounded-xl border border-brand-borderLight dark:border-brand-darkBorder hover:bg-blue-50/50 dark:hover:bg-brand-darkSubtle cursor-pointer transition-all">
+          <input type="radio" name="quiz_opt" value="${i}" class="text-brand-primary focus:ring-brand-primary w-4 h-4">
+          <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-200">${opt}</span>
+        </label>
+      `).join('');
+
+      document.getElementById("quizFeedbackBox").classList.add("hidden");
+      document.getElementById("btnSubmitAnswer").classList.remove("hidden");
+      document.getElementById("btnNextQuestion").classList.add("hidden");
+    }
+
+    function submitQuizAnswer() {
+      const selected = document.querySelector('input[name="quiz_opt"]:checked');
+      if (!selected) {
+        alert("Silakan pilih salah satu jawaban terlebih dahulu.");
+        return;
+      }
+
+      const userChoice = parseInt(selected.value, 10);
+      const q = QUIZ_QUESTIONS[state.quizCurrentIndex];
+      const isCorrect = (userChoice === q.correctIndex);
+
+      state.quizAnswers[state.quizCurrentIndex] = isCorrect;
+      playTone(isCorrect ? 'correct' : 'wrong');
+
+      const fbBox = document.getElementById("quizFeedbackBox");
+      const fbHeader = document.getElementById("quizFeedbackHeader");
+      const fbBody = document.getElementById("quizFeedbackBody");
+
+      fbBox.classList.remove("hidden");
+      if (isCorrect) {
+        fbBox.className = "p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs sm:text-sm";
+        fbHeader.innerHTML = '<span class="material-symbols-outlined text-base">check_circle</span> <span>Jawaban Tepat</span>';
+      } else {
+        fbBox.className = "p-4 rounded-xl border border-red-200 bg-red-50 text-red-800 text-xs sm:text-sm";
+        fbHeader.innerHTML = '<span class="material-symbols-outlined text-base">cancel</span> <span>Jawaban Kurang Tepat</span>';
+      }
+      fbBody.innerText = q.explanation;
+
+      document.getElementById("btnSubmitAnswer").classList.add("hidden");
+      document.getElementById("btnNextQuestion").classList.remove("hidden");
+    }
+
+    function goToNextQuestion() {
+      playTone('click');
+      if (state.quizCurrentIndex < QUIZ_QUESTIONS.length - 1) {
+        state.quizCurrentIndex++;
+        renderQuizQuestion();
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function finishQuiz() {
+      const correctCount = state.quizAnswers.filter(Boolean).length;
+      state.quizScore = Math.round((correctCount / QUIZ_QUESTIONS.length) * 100);
+
+      document.getElementById("quizActiveContainer").classList.add("hidden");
+      document.getElementById("quizSummaryContainer").classList.remove("hidden");
+      document.getElementById("quizFinalScoreDisplay").innerText = `${state.quizScore}%`;
+
+      const msg = document.getElementById("quizPassFailMessage");
+      if (state.quizScore >= COURSE_CONFIG.passingScore) {
+        msg.innerText = `Luar biasa! Anda memenuhi syarat kelulusan minimal (${COURSE_CONFIG.passingScore}%). Silakan lanjutkan ke unit penutup untuk mencetak sertifikat.`;
+        if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 60 });
+      } else {
+        msg.innerText = `Skor Anda belum mencapai ambang batas kelulusan (${COURSE_CONFIG.passingScore}%). Anda dapat mengulangi kuis untuk memperdalam pemahaman materi.`;
+      }
+    }
+
+    function resetQuiz() {
+      playTone('click');
+      state.quizCurrentIndex = 0;
+      state.quizAnswers = [];
+      state.quizScore = 0;
+      document.getElementById("quizActiveContainer").classList.remove("hidden");
+      document.getElementById("quizSummaryContainer").classList.add("hidden");
+      renderQuizQuestion();
+    }
+
+    // ========================================================================
+    // 7. PRINT CERTIFICATE CONTROLLER
+    // ========================================================================
+    function printOfficialCertificate() {
+      playTone('click');
+      const name = document.getElementById("participantNameInput").value.trim() || "Peserta Pelatihan";
+      document.getElementById("certParticipantName").innerText = name;
+      document.getElementById("certScoreDisplay").innerText = `${state.quizScore}%`;
+
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById("certDateDisplay").innerText = new Date().toLocaleDateString('id-ID', options);
+
+      const cert = document.getElementById("certificatePrintArea");
+      cert.classList.remove("hidden");
+      window.print();
+      setTimeout(() => cert.classList.add("hidden"), 1000);
+    }
+
+    // ========================================================================
+    // 8. KEYBOARD NAVIGATION
+    // ========================================================================
+    window.addEventListener("keydown", (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === "ArrowRight") goToNextSlide();
+      else if (e.key === "ArrowLeft") goToPrevSlide();
+      else if (e.key === " ") {
+        e.preventDefault();
+        togglePlayAudio();
+      }
+    });
+
+    // ========================================================================
+    // 9. INITIALIZATION
+    // ========================================================================
+    window.addEventListener("DOMContentLoaded", () => {
+      goToSlide(0);
+      updateOutlineUI();
+    });
+  </script>
+</body>
+</html>
